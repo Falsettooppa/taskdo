@@ -10,6 +10,8 @@ function App() {
     { id: 6, text: "Read", completed: false },
   ]);
   const [newTask, setNewTask] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [editedText, setEditedText] = useState("");
 
   // Add new task
   const handleSubmit = (e) => {
@@ -31,6 +33,17 @@ function App() {
         task.id === id ? { ...task, completed: !task.completed } : task
       )
     );
+  };
+
+  // Edit task
+  const editTask = (id, newText) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, text: newText } : task
+      )
+    );
+    setEditingId(null);
+    setEditedText("");
   };
 
   // Delete task
@@ -86,32 +99,70 @@ function App() {
               key={task.id}
               className="flex items-center justify-between p-3 border rounded-lg hover:shadow-md transition"
             >
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => toggleComplete(task.id)}
-                  className="w-5 h-5"
-                />
-                <label
-                  className={`font-medium ${
-                    task.completed ? "line-through text-gray-400" : "text-gray-800"
-                  }`}
-                >
-                  {task.text}
-                </label>
-              </div>
-              <div className="flex gap-2">
-                <button className="px-2 py-1 bg-yellow-400 text-white rounded-md hover:bg-yellow-500 transition">
-                  Edit
-                </button>
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  className="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
-                >
-                  Delete
-                </button>
-              </div>
+              {editingId === task.id ? (
+                // Edit mode
+                <div className="flex items-center gap-2 w-full">
+                  <input
+                    type="text"
+                    value={editedText}
+                    onChange={(e) => setEditedText(e.target.value)}
+                    className="flex-1 px-3 py-1 border rounded"
+                  />
+                  <button
+                    onClick={() => editTask(task.id, editedText)}
+                    className="px-2 py-1 bg-green-500 text-white rounded-md hover:bg-green-600 transition"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingId(null);
+                      setEditedText("");
+                    }}
+                    className="px-2 py-1 bg-gray-400 text-white rounded-md hover:bg-gray-500 transition"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              ) : (
+                // View mode
+                <>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={() => toggleComplete(task.id)}
+                      className="w-5 h-5"
+                    />
+                    <label
+                      className={`font-medium ${
+                        task.completed
+                          ? "line-through text-gray-400"
+                          : "text-gray-800"
+                      }`}
+                    >
+                      {task.text}
+                    </label>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        setEditingId(task.id);
+                        setEditedText(task.text);
+                      }}
+                      className="px-2 py-1 bg-yellow-400 text-white rounded-md hover:bg-yellow-500 transition"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      className="px-2 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>
